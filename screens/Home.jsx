@@ -11,22 +11,23 @@ import { BeerListing, BeerStyleListing, MainMenu } from "../components";
 import { BEER_STYLES } from "../constants";
 
 const Home = ({ navigation }) => {
+  const [page, setPage] = useState(1);
   const [beers, setBeers] = useState([]);
   const [selectedStyle, setSelectedStyle] = useState(null);
 
   useEffect(() => {
-    getInitialBeers();
+    getBeers();
   }, []);
 
-  const getInitialBeers = async () => {
-    const beers = await beerClient.getBeers();
+  const getBeers = async (page = 1) => {
+    const beers = await beerClient.getBeers(page);
     setBeers(beers);
   };
 
   const handleStylePress = async (style) => {
     if (selectedStyle === style) {
       setSelectedStyle(null);
-      getInitialBeers();
+      getBeers();
     } else {
       setSelectedStyle(style);
       const beers = await beerClient.getBeerByStyle(style);
@@ -36,6 +37,17 @@ const Home = ({ navigation }) => {
 
   const handleBeerPress = (item) => {
     navigation.navigate("BeerDetail", { item });
+  };
+
+  const handleOnEndReached = async () => {
+    let beers = [];
+    if (selectedStyle === null) {
+      beers = await beerClient.getBeers(page + 1);
+    } else {
+      beers = await beerClient.getBeerByStyle(selectedStyle, page + 1);
+    }
+    setBeers((prevBeers) => [...prevBeers, ...beers]);
+    setPage(page + 1);
   };
 
   return (
@@ -62,6 +74,8 @@ const Home = ({ navigation }) => {
         contentContainerStyle={{ paddingHorizontal: 10 }}
         initialNumToRender={10}
         data={beers}
+        onEndReachedThreshold={0.25}
+        onEndReached={handleOnEndReached}
         renderItem={({ item }) => (
           <BeerListing item={item} handleBeerPress={handleBeerPress} />
         )}
