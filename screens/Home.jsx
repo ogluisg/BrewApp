@@ -59,6 +59,7 @@ const Home = ({ navigation }) => {
       />
       <FlatList
         keyExtractor={(item, index) => `${item.name}-${index}`}
+        contentContainerStyle={{ paddingHorizontal: 10 }}
         initialNumToRender={10}
         data={beers}
         renderItem={({ item }) => (
