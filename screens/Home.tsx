@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView, FlatList } from "react-native";
+import { NavigationProp } from "@react-navigation/native";
+
+// Redux
+import { useSelector, useDispatch } from "react-redux";
 
 // Helper
 import beerClient from "../services/beerClient";
@@ -9,11 +13,16 @@ import { BeerListing, BeerStyleListing, MainMenu } from "../components";
 
 // Constants
 import { BEER_STYLES } from "../constants";
+import { Beer } from "../types";
 
-const Home = ({ navigation }) => {
-  const [page, setPage] = useState(1);
-  const [beers, setBeers] = useState([]);
-  const [selectedStyle, setSelectedStyle] = useState(null);
+type Props = {
+  navigation: NavigationProp<any>;
+};
+
+const Home: React.FC<Props> = ({ navigation }) => {
+  const [page, setPage] = useState<number>(1);
+  const [beers, setBeers] = useState<Beer[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
 
   useEffect(() => {
     getBeers();
@@ -24,7 +33,7 @@ const Home = ({ navigation }) => {
     setBeers(beers);
   };
 
-  const handleStylePress = async (style) => {
+  const handleStylePress = async (style: string) => {
     if (selectedStyle === style) {
       setSelectedStyle(null);
       getBeers();
@@ -35,12 +44,12 @@ const Home = ({ navigation }) => {
     }
   };
 
-  const handleBeerPress = (item) => {
+  const handleBeerPress = (item: Beer) => {
     navigation.navigate("BeerDetail", { item });
   };
 
   const handleOnEndReached = async () => {
-    let beers = [];
+    let beers: Beer[] = [];
     if (selectedStyle === null) {
       beers = await beerClient.getBeers(page + 1);
     } else {
